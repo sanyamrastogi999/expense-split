@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f4f5fb">
+<title>ExpenseSplit</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5fb;--white:#fff;--surf:#eef0f8;--surf2:#e2e4f0;
+  --ink:#0d1117;--ink2:#3d4460;--muted:#8b93b0;--bdr:#e2e4f0;
+  --blue:#2563eb;--blt:#eff3ff;--bdk:#1a4fd4;
+  --grn:#059669;--glt:#ecfdf5;
+  --red:#dc2626;--rlt:#fef2f2;
+  --amb:#d97706;--alt:#fffbeb;
+  --r:16px;--rs:10px;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);
+  --sh2:0 4px 24px rgba(0,0,0,.09);
+  --fn:'Sora',system-ui,sans-serif;
+  --mo:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:var(--bg);font-family:var(--fn);color:var(--ink);-webkit-font-smoothing:antialiased}
+#app{max-width:460px;margin:0 auto;min-height:100vh}
+
+/* ── screens ── */
+.scr{display:none}
+.scr.on{display:block}
+#scLogin{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px 20px}
+#scLogin.on{display:flex}
+
+/* ── brand ── */
+.brand{text-align:center;margin-bottom:28px}
+.bmark{width:60px;height:60px;background:var(--ink);border-radius:17px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 8px 24px rgba(13,17,23,.18)}
+.bmark svg{width:28px;height:28px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bnm{font-size:26px;font-weight:800;letter-spacing:-.5px}
+.bnm b{color:var(--blue);font-weight:800}
+.btg{font-size:12px;color:var(--muted);margin-top:3px}
+
+/* ── cards ── */
+.acard{background:var(--white);border:1px solid var(--bdr);border-radius:20px;padding:26px 22px;width:100%;box-shadow:var(--sh2)}
+.acard h2{font-size:18px;font-weight:700;letter-spacing:-.3px;margin-bottom:5px}
+.acard .sub{font-size:13px;color:var(--ink2);margin-bottom:20px;line-height:1.65}
+.card{background:var(--white);border:1px solid var(--bdr);border-radius:var(--r);padding:20px;margin-bottom:12px;box-shadow:var(--sh)}
+.clbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:13px}
+
+/* ── form ── */
+.f{margin-bottom:14px}
+.f label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:7px}
+.f input,.f select{
+  display:block;width:100%;padding:13px 14px;
+  background:var(--surf);border:1.5px solid var(--bdr);border-radius:var(--rs);
+  font-size:15px;font-family:var(--fn);color:var(--ink);
+  outline:none;-webkit-appearance:none;appearance:none;
+  transition:border .2s,box-shadow .2s,background .15s;
+}
+.f input:focus,.f select:focus{border-color:var(--blue);background:var(--white);box-shadow:0 0 0 3px rgba(37,99,235,.11)}
+.f input::placeholder{color:var(--muted)}
+.f select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b93b0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:38px}
+.frow{display:flex;gap:8px;align-items:stretch}
+.frow input{flex:1}
+
+/* ── buttons ── */
+.btn{display:block;width:100%;padding:14px;background:var(--ink);border:none;border-radius:var(--rs);font-family:var(--fn);font-size:15px;font-weight:700;color:#fff;cursor:pointer;letter-spacing:-.1px;transition:transform .12s,background .15s;-webkit-appearance:none;text-align:center}
+.btn:active{transform:scale(.97)}
+.btn-b{background:var(--blue)}
+.btn-b:active{background:var(--bdk)}
+.btn-o{background:var(--white);border:1.5px solid var(--bdr);color:var(--ink2);box-shadow:none;margin-top:10px}
+.btn-o:active{background:var(--surf)}
+.btn-sm{display:inline-block;width:auto;padding:8px 15px;font-size:12px;margin-top:0;border-radius:8px;line-height:1.2}
+.btn-r{background:var(--rlt);color:var(--red);border:1px solid #fecaca;box-shadow:none}
+.btn-g{background:var(--glt);color:var(--grn);border:1px solid #a7f3d0;box-shadow:none}
+.btn-il{display:inline-block;width:auto;padding:0 18px;margin:0;border-radius:var(--rs)}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:14px 0}
+.or::before,.or::after{content:'';flex:1;height:1px;background:var(--bdr)}
+
+/* ── header ── */
+.hdr{padding:52px 20px 0;display:flex;align-items:center;justify-content:space-between}
+.hdrl{display:flex;align-items:center;gap:11px}
+.hico{width:38px;height:38px;background:var(--ink);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hico svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.htitle{font-size:19px;font-weight:800;letter-spacing:-.3px}
+.htitle b{color:var(--blue);font-weight:800}
+.hsub{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-top:1px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spill{display:flex;align-items:center;gap:5px;background:var(--white);border:1.5px solid var(--bdr);border-radius:50px;padding:5px 12px;font-size:11px;font-weight:700;color:var(--ink2);box-shadow:var(--sh);flex-shrink:0}
+.ldot{width:6px;height:6px;border-radius:50%;background:var(--grn);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* ── tabs ── */
+.tabs{display:flex;background:var(--white);border:1px solid var(--bdr);border-radius:13px;padding:4px;margin:14px 20px 18px;box-shadow:var(--sh)}
+.tab{flex:1;padding:9px 2px;text-align:center;font-size:11px;font-weight:700;border-radius:10px;color:var(--muted);cursor:pointer;border:none;background:none;font-family:var(--fn);transition:all .2s;line-height:1.3}
+.tab.on{background:var(--ink);color:#fff;box-shadow:0 2px 8px rgba(13,17,23,.18)}
+
+/* ── sections ── */
+.sec{display:none;padding:0 20px 48px}
+.sec.on{display:block}
+
+/* ── code block ── */
+.cblk{background:var(--ink);border-radius:var(--r);padding:20px;text-align:center;margin-bottom:12px;position:relative;overflow:hidden}
+.cblk::before{content:'';position:absolute;top:-28px;right:-28px;width:90px;height:90px;background:rgba(255,255,255,.04);border-radius:50%}
+.clbl2{font-size:10px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
+.cval{font-family:var(--mo);font-size:20px;font-weight:500;color:#fff;letter-spacing:3px;margin-bottom:3px;word-break:break-all;line-height:1.4}
+.cgrpnm{font-size:13px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:14px}
+.bcopy{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:8px 18px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--fn)}
+.bcopy:active{background:rgba(255,255,255,.2)}
+
+/* ── chips ── */
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;min-height:28px}
+.chip{display:flex;align-items:center;gap:7px;background:var(--surf);border:1px solid var(--surf2);border-radius:50px;padding:5px 12px 5px 5px;font-size:13px;font-weight:500;color:var(--ink2)}
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0}
+
+/* ── split ── */
+.prow{display:flex;gap:7px;flex-wrap:wrap}
+.spl{padding:8px 15px;border-radius:50px;font-size:13px;font-weight:600;border:1.5px solid var(--bdr);background:var(--surf);color:var(--ink2);cursor:pointer;font-family:var(--fn);transition:all .15s}
+.spl.on{border-color:var(--blue);background:var(--blt);color:var(--blue)}
+.trow{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.tgl{display:flex;align-items:center;gap:6px;background:var(--surf);border:1.5px solid var(--bdr);border-radius:50px;padding:7px 13px 7px 7px;font-size:13px;font-weight:500;color:var(--ink2);cursor:pointer;user-select:none;font-family:var(--fn);transition:all .15s}
+.tgl.on{border-color:var(--blue);background:var(--blt);color:var(--blue)}
+.tav{border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0}
+
+/* ── hero ── */
+.hero{background:linear-gradient(135deg,#0d1117,#1a2744 50%,#1e3a8a);border-radius:var(--r);padding:22px;margin-bottom:14px;color:#fff;box-shadow:0 6px 24px rgba(13,17,23,.16);position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-20px;right:-20px;width:90px;height:90px;background:rgba(255,255,255,.06);border-radius:50%}
+.hlbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;opacity:.55}
+.hamt{font-size:34px;font-weight:800;margin:6px 0 3px;letter-spacing:-.8px}
+.hcnt{font-size:12px;opacity:.5}
+.slbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin:18px 0 10px;display:flex;align-items:center;gap:8px}
+.slbl::after{content:'';flex:1;height:1px;background:var(--bdr)}
+
+/* ── spend / expense / balance cards ── */
+.spc{background:var(--white);border:1px solid var(--bdr);border-radius:var(--rs);padding:14px 15px;margin-bottom:8px;box-shadow:var(--sh)}
+.bbg{width:100%;height:4px;background:var(--surf2);border-radius:4px;overflow:hidden;margin-top:10px}
+.bfill{height:100%;border-radius:4px;transition:width .7s cubic-bezier(.4,1,.6,1)}
+.exc{background:var(--white);border:1px solid var(--bdr);border-radius:var(--rs);padding:13px 15px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--sh)}
+.eico{width:38px;height:38px;background:var(--surf);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;border:1px solid var(--surf2)}
+.delbtn{background:none;border:none;font-size:14px;cursor:pointer;color:var(--muted);padding:5px;border-radius:7px;line-height:1}
+.delbtn:active{background:var(--rlt);color:var(--red)}
+.balc{background:var(--white);border:1px solid var(--bdr);border-radius:var(--rs);padding:13px 15px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--sh)}
+.bdg{font-size:12px;font-weight:700;padding:4px 11px;border-radius:20px;white-space:nowrap}
+.bg{background:var(--glt);color:var(--grn)}
+.br{background:var(--rlt);color:var(--red)}
+.bn{background:var(--surf);color:var(--muted)}
+.stlc{background:var(--alt);border:1px solid rgba(217,119,6,.2);border-radius:var(--rs);padding:13px 15px;margin-bottom:7px;display:flex;align-items:center;gap:10px;font-size:13px}
+
+/* ── misc ── */
+.ubar{background:linear-gradient(135deg,var(--blt),#f5f3ff);border:1px solid rgba(37,99,235,.1);border-radius:var(--r);padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.grow{background:var(--white);border:1px solid var(--bdr);border-radius:var(--rs);padding:14px 16px;margin-bottom:8px;box-shadow:var(--sh);display:flex;align-items:center;gap:10px}
+.grow-info{flex:1;min-width:0}
+.grow-nm{font-size:14px;font-weight:700;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grow-meta{font-size:11px;color:var(--muted);margin-top:2px;font-family:var(--mo);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-end;justify-content:center}
+.modal-bg.on{display:flex}
+.modal{background:var(--white);border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%;max-width:460px;max-height:85vh;overflow-y:auto;box-shadow:0 -8px 32px rgba(0,0,0,.14);animation:su .22s ease}
+@keyframes su{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal h3{font-size:17px;font-weight:700;margin-bottom:18px;letter-spacing:-.2px}
+.mx{float:right;background:var(--surf);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;font-family:var(--fn);margin-top:-2px}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:11px 22px;border-radius:50px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.a0{background:#2563eb}.a1{background:#dc2626}.a2{background:#d97706}.a3{background:#059669}.a4{background:#7c3aed}.a5{background:#db2777}.a6{background:#0891b2}.a7{background:#0d9488}
+.est{text-align:center;padding:28px 16px;color:var(--muted);font-size:13px}
+.est .e{font-size:32px;margin-bottom:8px;opacity:.4}
+.err{color:var(--red);font-size:13px;margin-top:6px;min-height:18px}
+.safe{height:env(safe-area-inset-bottom,22px)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ═══ LOGIN ═══ -->
+<div id="scLogin" class="on">
+  <div class="brand">
+    <div class="bmark">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <div class="bnm">Expense<b>Split</b></div>
+    <div class="btg">Real-time Group Expense Tracker</div>
+  </div>
+
+  <div class="acard">
+    <!-- Step A: name + phone -->
+    <div id="stA">
+      <h2>Sign In</h2>
+      <div class="sub">Enter your name and phone number to get started.</div>
+      <div class="f"><label>Your Name</label>
+        <input type="text" id="inpName" placeholder="e.g. Sanyam" maxlength="25"></div>
+      <div class="f"><label>Mobile Number</label>
+        <input type="tel" id="inpPhone" placeholder="10-digit number" maxlength="10" inputmode="numeric"></div>
+      <button class="btn btn-b" onclick="doStepA()">Continue →</button>
+    </div>
+
+    <!-- Step B: create / join -->
+    <div id="stB" style="display:none">
+      <h2 id="stBtitle">Your Groups</h2>
+      <div id="stBsub" class="sub">Create a new group or join one.</div>
+      <button class="btn btn-b" onclick="showCreateModal()">➕ Create New Group</button>
+      <div class="or">or join with code</div>
+      <div class="f"><label>Group Code</label>
+        <div class="frow">
+          <input type="text" id="inpCode" placeholder="Paste group code here" style="font-family:var(--mo);font-size:13px">
+          <button class="btn btn-b btn-il" onclick="doJoin()">Join</button>
+        </div>
+      </div>
+      <div id="joinErr" class="err"></div>
+      <div id="savedWrap" style="display:none;margin-top:4px">
+        <div class="slbl" style="margin-top:8px">My Groups</div>
+        <div id="savedList"></div>
+      </div>
+      <button class="btn btn-o" onclick="goBack()">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="scApp" class="scr">
+  <div class="hdr">
+    <div class="hdrl">
+      <div class="hico"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div>
+        <div class="htitle">Expense<b>Split</b></div>
+        <div id="hGrp" class="hsub">Group</div>
+      </div>
+    </div>
+    <div class="spill"><div class="ldot" id="ldot"></div><span id="stxt">Live</span></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" id="tb0" onclick="showTab(0)">👥 Group</button>
+    <button class="tab" id="tb1" onclick="showTab(1)">➕ Add</button>
+    <button class="tab" id="tb2" onclick="showTab(2)">📊 Summary</button>
+    <button class="tab" id="tb3" onclick="showTab(3)">⚙️ Manage</button>
+  </div>
+
+  <!-- GROUP TAB -->
+  <div id="s0" class="sec on">
+    <div class="ubar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div id="myAv" class="av a0" style="width:42px;height:42px;font-size:14px">?</div>
+        <div>
+          <div id="myNm" style="font-size:14px;font-weight:700;letter-spacing:-.2px">—</div>
+          <div id="myPh" style="font-size:11px;color:var(--muted);margin-top:1px;font-family:var(--mo)">—</div>
+        </div>
+      </div>
+      <button class="btn btn-sm btn-r" onclick="doLeave()">Leave</button>
+    </div>
+    <div class="cblk">
+      <div class="clbl2">Group Code — share to invite</div>
+      <div id="codeVal" class="cval">——</div>
+      <div id="codeNm" class="cgrpnm"></div>
+      <button class="bcopy" onclick="copyCode()">📋 Copy Code</button>
+    </div>
+    <div class="card">
+      <div class="clbl">Members (<span id="mCnt">0</span>)</div>
+      <div id="mList" class="chips"></div>
+    </div>
+    <div class="card">
+      <div class="clbl">Currency</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="spl on" id="curBtn" onclick="changeCurr()" style="font-size:16px;padding:9px 20px">₹</button>
+        <div><div id="curNm" style="font-size:14px;font-weight:600">Indian Rupee</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">Tap to change</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD TAB -->
+  <div id="s1" class="sec">
+    <div class="card">
+      <div class="clbl">New Expense</div>
+      <div class="f"><label>Description</label><input type="text" id="eDesc" placeholder="e.g. Lunch, Petrol, Hotel..."></div>
+      <div class="f"><label>Amount (<span id="curLbl">₹</span>)</label><input type="number" id="eAmt" placeholder="0.00" min="0" step="0.01" inputmode="decimal"></div>
+      <div class="f"><label>Paid By</label><select id="ePayer"></select></div>
+      <div class="f"><label>Category</label>
+        <select id="eCat">
+          <option>🍽️ Food</option><option>🚗 Transport</option><option>🏨 Stay</option>
+          <option>🛒 Shopping</option><option>💊 Health</option><option>🎉 Entertainment</option>
+          <option>⚡ Utilities</option><option>📦 Other</option>
+        </select></div>
+      <div class="f"><label>Split Type</label>
+        <div class="prow">
+          <div class="spl on" id="spEq" onclick="setSplit('equal')">Equal</div>
+          <div class="spl" id="spCu" onclick="setSplit('custom')">Custom %</div>
+          <div class="spl" id="spEx" onclick="setSplit('exact')">Exact ₹</div>
+        </div></div>
+      <div class="f"><label>Split Among</label><div id="tWrap" class="trow"></div></div>
+      <div id="cusBlock" style="display:none;margin-top:14px">
+        <div id="cusTtl" class="clbl">Percentages (must total 100%)</div>
+        <div id="cusInp"></div>
+      </div>
+      <button class="btn btn-b" onclick="addExpense()" style="margin-top:16px">Add Expense</button>
+    </div>
+  </div>
+
+  <!-- SUMMARY TAB -->
+  <div id="s2" class="sec">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="font-size:20px;font-weight:800;letter-spacing:-.4px">Summary</div>
+      <button class="btn btn-sm btn-r" onclick="clearAll()">Clear All</button>
+    </div>
+    <div class="hero">
+      <div class="hlbl">Total Group Spend</div>
+      <div id="hAmt" class="hamt">₹0.00</div>
+      <div id="hCnt" class="hcnt">0 expenses</div>
+    </div>
+    <div class="slbl">💸 Individual Contribution</div><div id="dSpend"></div>
+    <div class="slbl">🧾 All Expenses</div><div id="dExp"></div>
+    <div class="slbl">⚖️ Balance Sheet</div><div id="dBal"></div>
+    <div id="dStlW" style="display:none"><div class="slbl">✅ Settlements</div><div id="dStl"></div></div>
+  </div>
+
+  <!-- MANAGE TAB -->
+  <div id="s3" class="sec">
+    <div class="card">
+      <div class="clbl">Current Group</div>
+      <div style="margin-bottom:14px">
+        <div id="mGNm" style="font-size:15px;font-weight:700;letter-spacing:-.2px">—</div>
+        <div id="mGCd" style="font-size:11px;color:var(--muted);margin-top:3px;font-family:var(--mo)">—</div>
+      </div>
+      <div class="f"><label>Rename Group</label><input type="text" id="inpRen" placeholder="New group name" maxlength="40"></div>
+      <button class="btn btn-b" onclick="renameGrp()" style="margin-top:8px">Save Name</button>
+    </div>
+    <div class="card">
+      <div class="clbl">All My Groups</div>
+      <div id="mGrpList"></div>
+      <div id="mGrpEmpty" class="est" style="padding:12px 0;display:none">No groups saved</div>
+    </div>
+    <div class="card" style="border-color:#fecaca">
+      <div class="clbl" style="color:var(--red)">Danger Zone</div>
+      <div style="font-size:13px;color:var(--ink2);margin-bottom:14px;line-height:1.65">Permanently delete this group from the server. All expenses will be lost.</div>
+      <button class="btn btn-r" onclick="deleteGrp()" style="width:100%;margin-top:0">🗑 Delete This Group</button>
+    </div>
+  </div>
+
+  <div class="safe"></div>
+</div>
+
+<!-- CREATE MODAL -->
+<div id="modalC" class="modal-bg" onclick="closeMod()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="mx" onclick="closeMod()">✕</button>
+    <h3>Create New Group</h3>
+    <div class="f"><label>Group Name</label>
+      <input type="text" id="inpGNm" placeholder="e.g. Goa Trip, Office Lunch, Family" maxlength="40"></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6">A unique code will be generated. Share it so others can join.</div>
+    <button class="btn btn-b" onclick="doCreate()">Create Group →</button>
+    <div id="crtErr" class="err" style="text-align:center"></div>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toastEl"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  ★ CONFIGURATION — Edit this ONE line with your
+//    Firebase Realtime Database URL, then deploy.
+//    Users will NEVER see this. They only enter
+//    their Name + Phone to start using the app.
+//
+//  HOW TO GET YOUR URL (one time, 3 minutes):
+//  1. console.firebase.google.com → Add Project
+//  2. Build → Realtime Database → Create (Test mode)
+//  3. Copy the URL and paste it below
+// ═══════════════════════════════════════════════════
+var DB = 'https://YOUR-PROJECT-default-rtdb.firebaseio.com';
+// ═══════════════════════════════════════════════════
+
+var CURRS=['₹','$','€','£','¥','AED'];
+var CURNAMES=['Indian Rupee','US Dollar','Euro','Brit Pound','Japanese Yen','UAE Dirham'];
+var AVC=['a0','a1','a2','a3','a4','a5','a6','a7'];
+var BARC=['#2563eb','#dc2626','#d97706','#059669','#7c3aed','#db2777','#0891b2','#0d9488'];
+
+var MY_NAME='', MY_PHONE='', GRP_ID='', GRP=null;
+var SPLIT_T='equal', SPLIT_S=[], POLL_T=null, LAST_TS=0;
+
+// ── utils ──
+var _tt;
+function toast(m){ var t=G('toastEl'); t.textContent=m; t.classList.add('show'); clearTimeout(_tt); _tt=setTimeout(function(){ t.classList.remove('show'); },2800); }
+function X(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function ini(n){ n=String(n||'').trim(); return n?n.slice(0,2).toUpperCase():'??'; }
+function avc(i){ return AVC[i%8]; }
+function brc(i){ return BARC[i%8]; }
+function curr(){ return GRP?(GRP.curr||'₹'):'₹'; }
+function fmt(n){ return curr()+parseFloat(n||0).toFixed(2); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function G(id){ return document.getElementById(id); }
+function show(id){ G(id).style.display='block'; }
+function hide(id){ G(id).style.display='none'; }
+function T(id,v){ G(id).textContent=v; }
+function H(id,v){ G(id).innerHTML=v; }
+function setSync(s){
+  G('ldot').style.background=s==='err'?'#dc2626':s==='syncing'?'#d97706':'#059669';
+  G('ldot').style.animation=s==='live'?'blink 2s infinite':'none';
+  T('stxt',s==='syncing'?'Syncing':s==='err'?'Offline':'Live');
+}
+
+// ── persist ──
+function sLS(k,v){ try{ localStorage.setItem(k,typeof v==='string'?v:JSON.stringify(v)); }catch(e){} }
+function lLS(k,d){ try{ var r=localStorage.getItem(k); return r===null?d:r; }catch(e){ return d; } }
+function lLSJ(k,d){ try{ var r=localStorage.getItem(k); return r?JSON.parse(r):d; }catch(e){ return d; } }
+function loadGrps(){ return lLSJ('xgrps',[]); }
+function saveGrps(l){ sLS('xgrps',l); }
+function upsertGrp(id,nm){ var l=loadGrps(),idx=-1; for(var i=0;i<l.length;i++){if(l[i].id===id){idx=i;break;}} var e={id:id,name:nm,ts:Date.now()}; if(idx>-1)l[idx]=e; else l.unshift(e); saveGrps(l); }
+function removeGrp(id){ saveGrps(loadGrps().filter(function(g){return g.id!==id;})); }
+
+// ── firebase REST ──
+function fbURL(p){ return DB.replace(/\/+$/,'')+p+'.json'; }
+function fbGet(id,cb){
+  fetch(fbURL('/groups/'+id))
+  .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+  .then(function(d){ cb(null,d); })
+  .catch(function(e){ cb(e.message||'Network error'); });
+}
+function fbPut(id,data,cb){
+  fetch(fbURL('/groups/'+id),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+  .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+  .then(function(){ if(cb)cb(null); })
+  .catch(function(e){ if(cb)cb(e.message||'Network error'); });
+}
+function fbDel(id,cb){
+  fetch(fbURL('/groups/'+id),{method:'DELETE'})
+  .then(function(){ if(cb)cb(null); })
+  .catch(function(e){ if(cb)cb(e.message); });
+}
+
+// ── DB not configured check ──
+function dbReady(){
+  if(DB.includes('YOUR-PROJECT')){
+    toast('⚠️ Please set your Firebase DB URL in the HTML file (line 1 of script)');
+    return false;
+  }
+  return true;
+}
+
+// ── login ──
+function doStepA(){
+  var nm=G('inpName').value.trim(), ph=G('inpPhone').value.trim();
+  if(!nm){ toast('Enter your name'); return; }
+  if(!/^\d{10}$/.test(ph)){ toast('Enter a valid 10-digit number'); return; }
+  MY_NAME=nm; MY_PHONE=ph;
+  sLS('xme',JSON.stringify({name:nm,phone:ph}));
+  T('stBtitle','Your Groups');
+  T('stBsub','Hi '+nm+'! Create a new group or join one with a code.');
+  hide('stA'); show('stB'); renderSaved();
+}
+function goBack(){ hide('stB'); show('stA'); }
+
+function renderSaved(){
+  var l=loadGrps();
+  if(!l.length){ hide('savedWrap'); return; }
+  show('savedWrap');
+  var h='';
+  for(var i=0;i<l.length;i++){
+    var g=l[i];
+    h+='<div class="grow"><div class="grow-info"><div class="grow-nm">'+X(g.name)+'</div>'
+      +'<div class="grow-meta">'+X(g.id)+'</div></div>'
+      +'<div style="display:flex;gap:6px">'
+      +'<button class="btn btn-sm btn-g" onclick="openGrp(\''+g.id+'\')">Open</button>'
+      +'<button class="btn btn-sm btn-r" onclick="forgetGrp(\''+g.id+'\')">✕</button>'
+      +'</div></div>';
+  }
+  H('savedList',h);
+}
+
+function openGrp(id){
+  if(!dbReady()) return;
+  T('joinErr','Loading...');
+  fbGet(id,function(err,data){
+    T('joinErr','');
+    if(err||!data||!data.members){ T('joinErr','Could not load — check connection'); return; }
+    addMe(data); data.ts=Date.now();
+    GRP_ID=id; GRP=data; LAST_TS=data.ts;
+    sLS('xactive',id); upsertGrp(id,data.name);
+    fbPut(id,data,null); enterApp(); toast('Opened "'+data.name+'"');
+  });
+}
+function forgetGrp(id){
+  if(!confirm('Remove from list? Group on server stays intact.')) return;
+  removeGrp(id); renderSaved(); toast('Removed from list');
+}
+
+// ── create ──
+function showCreateModal(){
+  if(!dbReady()) return;
+  G('inpGNm').value=''; T('crtErr','');
+  G('modalC').classList.add('on');
+  setTimeout(function(){ G('inpGNm').focus(); },120);
+}
+function closeMod(){ G('modalC').classList.remove('on'); }
+function doCreate(){
+  var name=G('inpGNm').value.trim();
+  if(!name){ T('crtErr','Enter a group name'); return; }
+  T('crtErr','Creating...');
+  var id=uid();
+  var grp={name:name,curr:'₹',currIdx:0,members:[{name:MY_NAME,phone:MY_PHONE}],expenses:[],ts:Date.now()};
+  fbPut(id,grp,function(err){
+    if(err){ T('crtErr','Failed: '+err); return; }
+    T('crtErr',''); GRP_ID=id; GRP=grp; LAST_TS=grp.ts;
+    sLS('xactive',id); upsertGrp(id,name);
+    closeMod(); enterApp(); toast('Group "'+name+'" created!');
+  });
+}
+
+// ── join ──
+function doJoin(){
+  if(!dbReady()) return;
+  var code=G('inpCode').value.trim();
+  if(!code){ T('joinErr','Enter a group code'); return; }
+  T('joinErr','Looking up group...');
+  fbGet(code,function(err,data){
+    if(err||!data||!data.members){ T('joinErr','Group not found — check the code'); return; }
+    addMe(data); data.ts=Date.now();
+    GRP_ID=code; GRP=data; LAST_TS=data.ts;
+    sLS('xactive',code); upsertGrp(code,data.name);
+    T('joinErr',''); G('inpCode').value='';
+    fbPut(code,data,null); enterApp(); toast('Joined "'+data.name+'" ✓');
+  });
+}
+function addMe(grp){
+  var f=false;
+  for(var i=0;i<grp.members.length;i++){if(grp.members[i].phone===MY_PHONE){f=true;break;}}
+  if(!f) grp.members.push({name:MY_NAME,phone:MY_PHONE});
+}
+
+// ── app ──
+function enterApp(){
+  G('scLogin').classList.remove('on');
+  G('scApp').classList.add('on');
+  G('myAv').textContent=ini(MY_NAME);
+  T('myNm',MY_NAME); T('myPh','+91 '+MY_PHONE);
+  T('codeVal',GRP_ID); T('codeNm',GRP.name); T('hGrp',GRP.name);
+  G('curBtn').textContent=GRP.curr||'₹';
+  T('curLbl',GRP.curr||'₹'); T('curNm',CURNAMES[GRP.currIdx||0]);
+  renderMbr(); showTab(0); startPoll();
+}
+function doLeave(){
+  if(!confirm('Leave? You can rejoin with the same code.')) return;
+  stopPoll(); GRP_ID=''; GRP=null; LAST_TS=0; sLS('xactive','');
+  G('scApp').classList.remove('on');
+  G('scLogin').classList.add('on');
+  hide('stA'); show('stB'); renderSaved();
+}
+
+// ── poll ──
+function startPoll(){
+  stopPoll();
+  POLL_T=setInterval(function(){
+    if(!GRP_ID||DB.includes('YOUR-PROJECT')) return;
+    fbGet(GRP_ID,function(err,data){
+      if(err||!data){ setSync('err'); return; }
+      if((data.ts||0)<=LAST_TS){ setSync('live'); return; }
+      LAST_TS=data.ts; GRP=data; setSync('live');
+      G('curBtn').textContent=GRP.curr||'₹';
+      T('curLbl',GRP.curr||'₹'); T('curNm',CURNAMES[GRP.currIdx||0]);
+      T('codeNm',GRP.name); T('hGrp',GRP.name);
+      var a=document.querySelector('.sec.on');
+      if(a){
+        if(a.id==='s0')renderMbr();
+        if(a.id==='s1')prepAdd();
+        if(a.id==='s2')renderSum();
+        if(a.id==='s3')renderManage();
+      }
+    });
+  },5000);
+}
+function stopPoll(){ if(POLL_T){ clearInterval(POLL_T); POLL_T=null; } }
+function pushGrp(cb){
+  if(!GRP_ID||!GRP){ if(cb)cb('no group'); return; }
+  GRP.ts=Date.now(); LAST_TS=GRP.ts; setSync('syncing');
+  fbPut(GRP_ID,GRP,function(err){ setSync(err?'err':'live'); if(err)toast('Sync failed'); if(cb)cb(err); });
+}
+
+// ── tabs ──
+function showTab(n){
+  for(var i=0;i<4;i++){ G('s'+i).classList.toggle('on',i===n); G('tb'+i).classList.toggle('on',i===n); }
+  if(n===1)prepAdd(); if(n===2)renderSum(); if(n===3)renderManage();
+}
+
+// ── group tab ──
+function renderMbr(){
+  if(!GRP) return;
+  var n=GRP.members.length; T('mCnt',n);
+  if(!n){ H('mList','<span style="font-size:13px;color:var(--muted)">No members yet</span>'); return; }
+  var h='';
+  for(var i=0;i<n;i++){
+    var m=GRP.members[i], me=m.phone===MY_PHONE;
+    h+='<div class="chip"><div class="av '+avc(i)+'" style="width:28px;height:28px;font-size:10px">'+ini(m.name)+'</div>'
+      +'<span style="font-weight:600">'+X(m.name)+'</span>'
+      +'<span style="font-size:11px;color:var(--muted);font-family:var(--mo)">'+m.phone+(me?' (you)':'')+'</span></div>';
+  }
+  H('mList',h);
+}
+function copyCode(){
+  if(!GRP_ID){ toast('No code'); return; }
+  if(navigator.clipboard){ navigator.clipboard.writeText(GRP_ID).then(function(){ toast('Code copied: '+GRP_ID); }).catch(function(){ toast('Code: '+GRP_ID); }); }
+  else toast('Code: '+GRP_ID);
+}
+function changeCurr(){
+  if(!GRP) return;
+  GRP.currIdx=((GRP.currIdx||0)+1)%CURRS.length; GRP.curr=CURRS[GRP.currIdx];
+  G('curBtn').textContent=GRP.curr; T('curLbl',GRP.curr); T('curNm',CURNAMES[GRP.currIdx]);
+  pushGrp(null); toast('Currency → '+GRP.curr);
+}
+
+// ── add expense ──
+function prepAdd(){
+  if(!GRP||!GRP.members.length) return;
+  var n=GRP.members.length, opts='';
+  for(var i=0;i<n;i++) opts+='<option value="'+i+'"'+(GRP.members[i].phone===MY_PHONE?' selected':'')+'>'+X(GRP.members[i].name)+'</option>';
+  G('ePayer').innerHTML=opts;
+  SPLIT_S=[]; for(var i=0;i<n;i++) SPLIT_S.push(i);
+  renderTgls(); refreshCus();
+}
+function renderTgls(){
+  if(!GRP) return;
+  var h='';
+  for(var i=0;i<GRP.members.length;i++){
+    var m=GRP.members[i], on=SPLIT_S.indexOf(i)>-1;
+    h+='<div class="tgl'+(on?' on':'')+'" onclick="toggleM('+i+')">'
+      +'<div class="tav '+avc(i)+'" style="width:20px;height:20px">'+ini(m.name)+'</div>'+X(m.name)+'</div>';
+  }
+  H('tWrap',h);
+}
+function toggleM(idx){
+  var p=SPLIT_S.indexOf(idx);
+  if(p>-1){ if(SPLIT_S.length<=1){toast('Need at least 1');return;} SPLIT_S.splice(p,1); }
+  else SPLIT_S.push(idx);
+  renderTgls(); refreshCus();
+}
+function setSplit(t){
+  SPLIT_T=t;
+  G('spEq').classList.toggle('on',t==='equal');
+  G('spCu').classList.toggle('on',t==='custom');
+  G('spEx').classList.toggle('on',t==='exact');
+  refreshCus();
+}
+function refreshCus(){
+  if(SPLIT_T==='equal'){ hide('cusBlock'); return; }
+  show('cusBlock');
+  var iC=SPLIT_T==='custom';
+  T('cusTtl',iC?'Percentages (must total 100%)':'Exact Amounts (must total expense)');
+  var h='';
+  for(var i=0;i<SPLIT_S.length;i++){
+    var idx=SPLIT_S[i], m=GRP&&GRP.members[idx]; if(!m) continue;
+    h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'
+      +'<span style="font-size:13px;flex:1;font-weight:500">'+X(m.name)+'</span>'
+      +'<input type="number" min="0" step="any" id="ci'+idx+'" placeholder="'+(iC?'%':curr())+'" '
+      +'style="width:86px;text-align:right;padding:10px 12px;background:var(--surf);border:1.5px solid var(--bdr);border-radius:var(--rs);font-family:var(--fn);font-size:14px;color:var(--ink);outline:none"></div>';
+  }
+  H('cusInp',h);
+}
+function addExpense(){
+  if(!GRP){ toast('Not in a group'); return; }
+  var desc=G('eDesc').value.trim(), amt=parseFloat(G('eAmt').value);
+  var pIdx=parseInt(G('ePayer').value,10), cat=G('eCat').value;
+  if(!desc){ toast('Enter a description'); return; }
+  if(isNaN(amt)||amt<=0){ toast('Enter a valid amount'); return; }
+  if(!SPLIT_S.length){ toast('Select at least one person'); return; }
+  var splits={};
+  if(SPLIT_T==='equal'){
+    var each=amt/SPLIT_S.length;
+    for(var i=0;i<SPLIT_S.length;i++) splits[SPLIT_S[i]]=parseFloat(each.toFixed(2));
+  } else if(SPLIT_T==='custom'){
+    var tot=0;
+    for(var i=0;i<SPLIT_S.length;i++){
+      var el=G('ci'+SPLIT_S[i]); var v=el?parseFloat(el.value||0):0;
+      splits[SPLIT_S[i]]=v; tot+=v;
+    }
+    if(Math.abs(tot-100)>0.5){ toast('Percentages must total 100 (got '+tot.toFixed(1)+')'); return; }
+    for(var i=0;i<SPLIT_S.length;i++) splits[SPLIT_S[i]]=parseFloat(((splits[SPLIT_S[i]]/100)*amt).toFixed(2));
+  } else {
+    var tot2=0;
+    for(var i=0;i<SPLIT_S.length;i++){
+      var el2=G('ci'+SPLIT_S[i]); var v2=el2?parseFloat(el2.value||0):0;
+      splits[SPLIT_S[i]]=v2; tot2+=v2;
+    }
+    if(Math.abs(tot2-amt)>0.5){ toast('Amounts must total '+fmt(amt)); return; }
+  }
+  GRP.expenses=GRP.expenses||[];
+  GRP.expenses.push({id:uid(),desc:desc,amount:amt,payerIdx:pIdx,category:cat,
+    splitAmong:SPLIT_S.slice(),splits:splits,addedBy:MY_PHONE,
+    date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'}),ts:Date.now()});
+  G('eDesc').value=''; G('eAmt').value='';
+  pushGrp(function(err){ if(!err){ toast('Expense added ✓'); showTab(2); } });
+}
+
+// ── summary ──
+function renderSum(){
+  if(!GRP) return;
+  var exps=(GRP.expenses||[]).slice().sort(function(a,b){return(b.ts||0)-(a.ts||0);});
+  var total=0; for(var i=0;i<exps.length;i++) total+=exps[i].amount;
+  T('hAmt',fmt(total)); T('hCnt',exps.length+' expense'+(exps.length!==1?'s':''));
+  doSpend(exps,total); doExpList(exps); doBal(exps);
+}
+function doSpend(exps,grand){
+  var c=G('dSpend');
+  if(!GRP||!GRP.members.length||!exps.length){ c.innerHTML='<div class="est"><div class="e">📊</div>Add expenses to see breakdown</div>'; return; }
+  var n=GRP.members.length, spent=[], catSp=[];
+  for(var i=0;i<n;i++){ spent.push(0); catSp.push({}); }
+  for(var e=0;e<exps.length;e++){
+    var ex=exps[e], sa=ex.splitAmong||[];
+    for(var s=0;s<sa.length;s++){
+      var mi=sa[s]; if(mi<0||mi>=n) continue;
+      var sh=ex.splits&&ex.splits[mi]!=null?ex.splits[mi]:0;
+      spent[mi]+=sh; catSp[mi][ex.category]=(catSp[mi][ex.category]||0)+sh;
+    }
+  }
+  var ord=[]; for(var i=0;i<n;i++) ord.push(i);
+  ord.sort(function(a,b){return spent[b]-spent[a];});
+  var maxA=spent[ord[0]]||1, g2=grand||1, h='';
+  for(var r=0;r<ord.length;r++){
+    var mi=ord[r], mb=GRP.members[mi], a=spent[mi];
+    var pct=((a/g2)*100).toFixed(1), bw=((a/maxA)*100).toFixed(1), bc=brc(mi);
+    var cks=Object.keys(catSp[mi]||{}), carr=[];
+    for(var k=0;k<cks.length;k++) carr.push([cks[k],catSp[mi][cks[k]]]);
+    carr.sort(function(x,y){return y[1]-x[1];}); carr=carr.slice(0,3);
+    var tH=''; for(var ct=0;ct<carr.length;ct++) tH+='<span style="font-size:11px;background:var(--surf);border:1px solid var(--bdr);border-radius:5px;padding:2px 8px;color:var(--ink2);font-weight:500">'+X(carr[ct][0])+' '+fmt(carr[ct][1])+'</span>';
+    h+='<div class="spc"><div style="display:flex;justify-content:space-between;align-items:center">'
+      +'<div style="display:flex;align-items:center;gap:10px"><div class="av '+avc(mi)+'" style="width:38px;height:38px;font-size:13px">'+ini(mb.name)+'</div>'
+      +'<div><div style="font-size:14px;font-weight:700;letter-spacing:-.2px">'+X(mb.name)+'</div>'
+      +'<div style="font-size:11px;color:var(--muted);font-family:var(--mo)">'+mb.phone+'</div></div></div>'
+      +'<div style="text-align:right"><div style="font-size:16px;font-weight:800;color:'+bc+'">'+fmt(a)+'</div>'
+      +'<div style="font-size:11px;color:var(--muted);margin-top:2px">'+pct+'% of total</div></div></div>'
+      +'<div class="bbg"><div class="bfill" style="width:'+bw+'%;background:'+bc+'"></div></div>'
+      +(tH?'<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">'+tH+'</div>':'')+'</div>';
+  }
+  c.innerHTML=h;
+}
+function doExpList(exps){
+  var c=G('dExp');
+  if(!exps.length){ c.innerHTML='<div class="est"><div class="e">🧾</div>No expenses yet</div>'; return; }
+  var h='';
+  for(var e=0;e<exps.length;e++){
+    var ex=exps[e], payer=GRP.members[ex.payerIdx]||{name:'Unknown'};
+    var emoji=(ex.category||'📦').split(' ')[0], canDel=ex.addedBy===MY_PHONE;
+    h+='<div class="exc"><div style="display:flex;align-items:center;gap:11px">'
+      +'<div class="eico">'+emoji+'</div>'
+      +'<div><div style="font-size:14px;font-weight:600;letter-spacing:-.1px">'+X(ex.desc)+'</div>'
+      +'<div style="font-size:11px;color:var(--muted);margin-top:2px">'+X(payer.name)+' paid · '+ex.date+'</div></div></div>'
+      +'<div style="display:flex;align-items:center;gap:6px">'
+      +'<span style="font-size:15px;font-weight:800;color:var(--amb)">'+fmt(ex.amount)+'</span>'
+      +(canDel?'<button class="delbtn" onclick="delExp(\''+ex.id+'\')">🗑</button>':'<span style="width:24px"></span>')
+      +'</div></div>';
+  }
+  c.innerHTML=h;
+}
+function delExp(eid){
+  if(!confirm('Remove this expense?')) return;
+  GRP.expenses=(GRP.expenses||[]).filter(function(x){return x.id!==eid;});
+  pushGrp(function(err){if(!err){renderSum();toast('Removed');}});
+}
+function clearAll(){
+  if(!GRP||!(GRP.expenses||[]).length){toast('Nothing to clear');return;}
+  if(!confirm('Delete ALL expenses?')) return;
+  GRP.expenses=[];
+  pushGrp(function(err){if(!err){renderSum();toast('Cleared ✓');}});
+}
+function doBal(exps){
+  var n=GRP?GRP.members.length:0;
+  if(!n){H('dBal','<div class="est"><div class="e">👥</div>No members</div>');return;}
+  var bal=[]; for(var i=0;i<n;i++) bal.push(0);
+  for(var e=0;e<exps.length;e++){
+    var ex=exps[e];
+    if(ex.payerIdx>=0&&ex.payerIdx<n) bal[ex.payerIdx]+=ex.amount;
+    var sa=ex.splitAmong||[];
+    for(var s=0;s<sa.length;s++){
+      var mi=sa[s];
+      if(mi>=0&&mi<n) bal[mi]-=(ex.splits&&ex.splits[mi]!=null?ex.splits[mi]:0);
+    }
+  }
+  var h='';
+  for(var i=0;i<n;i++){
+    var mb=GRP.members[i], b=bal[i], cls, lbl;
+    if(b>0.01){cls='bg';lbl='Gets back '+fmt(b);}
+    else if(b<-0.01){cls='br';lbl='Owes '+fmt(-b);}
+    else{cls='bn';lbl='Settled ✓';}
+    h+='<div class="balc"><div style="display:flex;align-items:center;gap:10px">'
+      +'<div class="av '+avc(i)+'" style="width:38px;height:38px;font-size:13px">'+ini(mb.name)+'</div>'
+      +'<div><div style="font-size:14px;font-weight:700;letter-spacing:-.1px">'+X(mb.name)+'</div>'
+      +'<div style="font-size:11px;color:var(--muted);font-family:var(--mo);margin-top:2px">'+mb.phone+'</div></div></div>'
+      +'<div class="bdg '+cls+'">'+lbl+'</div></div>';
+  }
+  H('dBal',h);
+  var pos=[],neg=[];
+  for(var i=0;i<n;i++){
+    if(bal[i]>0.01) pos.push({name:GRP.members[i].name,bal:bal[i]});
+    if(bal[i]<-0.01) neg.push({name:GRP.members[i].name,bal:-bal[i]});
+  }
+  var stls=[],pi=0,ni=0;
+  var pC=pos.map(function(x){return{name:x.name,bal:x.bal};});
+  var nC=neg.map(function(x){return{name:x.name,bal:x.bal};});
+  while(pi<pC.length&&ni<nC.length){
+    var amt=Math.min(pC[pi].bal,nC[ni].bal);
+    if(amt>0.01) stls.push({from:nC[ni].name,to:pC[pi].name,amt:amt});
+    pC[pi].bal-=amt; nC[ni].bal-=amt;
+    if(pC[pi].bal<0.01)pi++; if(nC[ni].bal<0.01)ni++;
+  }
+  var sw=G('dStlW');
+  if(stls.length){
+    sw.style.display='block'; var sh='';
+    for(var i=0;i<stls.length;i++)
+      sh+='<div class="stlc"><span style="font-weight:700">'+X(stls[i].from)+'</span>'
+        +'<span style="font-size:16px;color:var(--amb)">→</span>'
+        +'<span style="flex:1;font-weight:700">'+X(stls[i].to)+'</span>'
+        +'<span style="font-weight:800;color:var(--blue)">'+fmt(stls[i].amt)+'</span></div>';
+    H('dStl',sh);
+  } else sw.style.display='none';
+}
+
+// ── manage tab ──
+function renderManage(){
+  if(!GRP) return;
+  T('mGNm',GRP.name); T('mGCd','Code: '+GRP_ID); G('inpRen').value='';
+  var list=loadGrps();
+  if(!list.length){ hide('mGrpList'); show('mGrpEmpty'); return; }
+  show('mGrpList'); hide('mGrpEmpty');
+  var h='';
+  for(var i=0;i<list.length;i++){
+    var g=list[i], isCur=g.id===GRP_ID;
+    h+='<div class="grow"><div class="grow-info">'
+      +'<div class="grow-nm">'+X(g.name)
+      +(isCur?' <span style="font-size:10px;background:var(--blue);color:#fff;padding:2px 7px;border-radius:10px;font-weight:600;vertical-align:middle">Active</span>':'')+'</div>'
+      +'<div class="grow-meta">'+X(g.id)+'</div></div>'
+      +'<div style="display:flex;gap:6px">'
+      +(isCur?'':'<button class="btn btn-sm btn-g" onclick="switchGrp(\''+g.id+'\')">Switch</button>')
+      +'<button class="btn btn-sm btn-r" onclick="forgetGrp(\''+g.id+'\')">✕</button>'
+      +'</div></div>';
+  }
+  H('mGrpList',h);
+}
+function renameGrp(){
+  var name=G('inpRen').value.trim();
+  if(!name){toast('Enter a new name');return;}
+  if(!GRP){toast('No active group');return;}
+  GRP.name=name; upsertGrp(GRP_ID,name);
+  pushGrp(function(err){
+    if(!err){
+      T('codeNm',name); T('hGrp',name); T('mGNm',name);
+      renderManage(); toast('Renamed to "'+name+'" ✓');
+    }
+  });
+}
+function deleteGrp(){
+  if(!GRP_ID){toast('No group');return;}
+  if(!confirm('DELETE "'+GRP.name+'" permanently?\n\nAll expenses will be lost forever.')) return;
+  fbDel(GRP_ID,function(){
+    removeGrp(GRP_ID); stopPoll();
+    GRP_ID=''; GRP=null; LAST_TS=0; sLS('xactive','');
+    G('scApp').classList.remove('on');
+    G('scLogin').classList.add('on');
+    hide('stA'); show('stB'); renderSaved();
+    toast('Group deleted');
+  });
+}
+function switchGrp(id){
+  if(id===GRP_ID){toast('Already active');return;}
+  stopPoll(); setSync('syncing');
+  fbGet(id,function(err,data){
+    if(err||!data||!data.members){toast('Could not load group');setSync('err');return;}
+    addMe(data); data.ts=Date.now();
+    GRP_ID=id; GRP=data; LAST_TS=data.ts;
+    sLS('xactive',id); upsertGrp(id,data.name);
+    fbPut(id,data,null);
+    T('codeVal',GRP_ID); T('codeNm',GRP.name); T('hGrp',GRP.name);
+    G('curBtn').textContent=GRP.curr||'₹';
+    T('curLbl',GRP.curr||'₹'); T('curNm',CURNAMES[GRP.currIdx||0]);
+    renderMbr(); renderManage(); startPoll();
+    toast('Switched to "'+data.name+'"'); showTab(0);
+  });
+}
+
+// ── boot ──
+var meRaw=lLS('xme','');
+if(meRaw){ try{var me=JSON.parse(meRaw);MY_NAME=me.name||'';MY_PHONE=me.phone||'';}catch(e){} }
+var activeId=lLS('xactive','');
+
+if(MY_NAME&&MY_PHONE&&activeId&&!DB.includes('Yhttps://expense-split-33adf-default-rtdb.firebaseio.com/
+:')){
+  G('scLogin').classList.add('on'); setSync('syncing');
+  fbGet(activeId,function(err,data){
+    if(err||!data||!data.members){
+      T('stBtitle','Your Groups');
+      T('stBsub','Hi '+MY_NAME+'! Rejoin a group or create a new one.');
+      hide('stA'); show('stB'); renderSaved(); return;
+    }
+    addMe(data); GRP_ID=activeId; GRP=data; LAST_TS=data.ts||0;
+    upsertGrp(activeId,data.name); enterApp();
+  });
+} else if(MY_NAME&&MY_PHONE){
+  G('scLogin').classList.add('on');
+  T('stBtitle','Your Groups');
+  T('stBsub','Hi '+MY_NAME+'! Create a group or join one.');
+  hide('stA'); show('stB'); renderSaved();
+} else {
+  G('scLogin').classList.add('on');
+}
+</script>
+</body>
+</html>
